@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OwinTesting", "OwinTesting\OwinTesting.csproj", "{7ED2A01A-86E3-46F5-A83B-F1458EE742DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BurnSystems.Owin.StaticFiles", "BurnSystems.Owin.StaticFiles\BurnSystems.Owin.StaticFiles.csproj", "{2F06054F-629C-4C88-ADCD-99ADF8CF5237}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7ED2A01A-86E3-46F5-A83B-F1458EE742DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ED2A01A-86E3-46F5-A83B-F1458EE742DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ED2A01A-86E3-46F5-A83B-F1458EE742DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ED2A01A-86E3-46F5-A83B-F1458EE742DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F06054F-629C-4C88-ADCD-99ADF8CF5237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F06054F-629C-4C88-ADCD-99ADF8CF5237}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F06054F-629C-4C88-ADCD-99ADF8CF5237}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F06054F-629C-4C88-ADCD-99ADF8CF5237}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
