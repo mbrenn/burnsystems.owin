@@ -102,8 +102,9 @@ namespace BurnSystems.Owin.StaticFiles
                     case StaticFileBrowserCache.PreconditionState.ShouldProcess:
                         _response.Headers.Set(Constants.LastModified, lastModifiedString);
                         _response.ETag = etagQuoted;
+                        _response.ContentType = StaticFileContentType.GetContentType(_absolutePath);
 
-                        await SendFileAsync(_absolutePath);
+                        await SendFileAsync();
                         return;
 
                     case StaticFileBrowserCache.PreconditionState.NotModified:
@@ -127,12 +128,12 @@ namespace BurnSystems.Owin.StaticFiles
             _response.StatusCode = code;
         }
 
-        private async Task SendFileAsync(string absolutePath)
+        private async Task SendFileAsync()
         {
             // Now, do the writing
             var streamSize = _staticFilesMiddleware.Configuration.BlockWriteSize;
             var bytes = new byte[streamSize];
-            using (var fileStream = File.OpenRead(absolutePath))
+            using (var fileStream = File.OpenRead(_absolutePath))
             {
                 var token = new CancellationToken();
                 int read;

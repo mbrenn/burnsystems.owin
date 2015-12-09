@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Owin;
-using System.Globalization;
 
 namespace BurnSystems.Owin.StaticFiles
 {
@@ -13,11 +11,7 @@ namespace BurnSystems.Owin.StaticFiles
     /// </summary>
     public class StaticFilesMiddleware : OwinMiddleware
     {
-        private readonly StaticFilesConfiguration _configuration;
-
-        public StaticFilesConfiguration Configuration => _configuration;
-
-        private readonly StaticFileRequest _staticFileRequest;
+        public StaticFilesConfiguration Configuration { get; }
 
         public StaticFilesMiddleware(OwinMiddleware next, StaticFilesConfiguration configuration) : base(next)
         {
@@ -29,7 +23,7 @@ namespace BurnSystems.Owin.StaticFiles
                                                     configuration.Directory);
             }
 
-            _configuration = configuration;
+            Configuration = configuration;
         }
 
     /// <summary>
@@ -43,7 +37,7 @@ namespace BurnSystems.Owin.StaticFiles
             
             if (!await request.Handle())
             {
-                await this.Next.Invoke(context);
+                await Next.Invoke(context);
             }
         }
     }
