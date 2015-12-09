@@ -78,6 +78,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="htdocs\img\katze.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="htdocs\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

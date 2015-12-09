@@ -7,40 +7,36 @@ using Microsoft.Owin;
 
 namespace BurnSystems.Owin.StaticFiles
 {
+    /// <summary>
+    /// Defines the owin middleware which serves the static files
+    /// </summary>
     public class StaticFilesMiddleware : OwinMiddleware
     {
-        private StaticFileConfiguration configuration;
+        private readonly StaticFilesConfiguration _configuration;
 
-        public StaticFilesMiddleware(OwinMiddleware next, StaticFileConfiguration configuration) : base(next)
+        public StaticFilesMiddleware(OwinMiddleware next, StaticFilesConfiguration configuration) : base(next)
         {
-            Debug.Assert(configuration != null, "configuration != null");
+            Debug.Assert(configuration != null, "_configuration != null");
 
             if (!Directory.Exists(configuration.Directory))
             {
                 throw new InvalidOperationException("Path for static file directory does not exist: " + configuration.Directory);
             }
 
-            this.configuration = configuration;
+            _configuration = configuration;
         }
 
+        /// <summary>
+        /// Entry point for the request
+        /// </summary>
+        /// <param name="context">Owin context containing the information</param>
+        /// <returns>Task for the invocation</returns>
         public override async Task Invoke(IOwinContext context)
         {
-            // Gets the path of the file, which is requested by the user
-            var uriPath = context.Request.Uri.AbsolutePath;
-
-            if (uriPath.StartsWith("/"))
-            {
-                uriPath = uriPath.Substring(1);
-            }
-
-            if (string.IsNullOrEmpty(uriPath))
-            {
-                uriPath = this.configuration.IndexFile;
-            }
+            string uriPath;
+            var absolutePath = DetermineAbsolutePath(context, out uriPath);
 
             var response = context.Response;
-            var absolutePath = Path.Combine(this.configuration.Directory, uriPath);
-
             if (!(await CheckIfFileIsSafeAndExisting(uriPath, absolutePath, response)))
             {
                 await this.Next.Invoke(context);
@@ -50,9 +46,28 @@ namespace BurnSystems.Owin.StaticFiles
 
         }
 
+        private string DetermineAbsolutePath(IOwinContext context, out string uriPath)
+        {
+            // Gets the path of the file, which is requested by the user
+            uriPath = context.Request.Uri.AbsolutePath;
+
+            if (uriPath.StartsWith("/"))
+            {
+                uriPath = uriPath.Substring(1);
+            }
+
+            if (string.IsNullOrEmpty(uriPath))
+            {
+                uriPath = this._configuration.IndexFile;
+            }
+
+            var absolutePath = Path.Combine(this._configuration.Directory, uriPath);
+            return absolutePath;
+        }
+
         private async Task<bool> CheckIfFileIsSafeAndExisting(string uriPath, string absolutePath, IOwinResponse response)
         {
-            if (Path.IsPathRooted(uriPath) || uriPath.Contains("..") || !absolutePath.StartsWith(this.configuration.Directory))
+            if (Path.IsPathRooted(uriPath) || uriPath.Contains("..") || !absolutePath.StartsWith(this._configuration.Directory))
             {
                 response.StatusCode = 404;
                 await response.WriteAsync("Not found");
@@ -73,17 +88,26 @@ namespace BurnSystems.Owin.StaticFiles
         private async Task WriteFileToResponse(IOwinResponse response, string absolutePath)
         {
             // Now, do the writing
-            var streamSize = this.configuration.BlockWriteSize;
+            var streamSize = this._configuration.BlockWriteSize;
             var bytes = new byte[streamSize];
             using (var fileStream = File.OpenRead(absolutePath))
             {
                 var token = new CancellationToken();
 
-                var read = await fileStream.ReadAsync(bytes, 0, streamSize, token);
-                if (read > 0)
+                int read;
+
+                do
                 {
+                    read = await fileStream.ReadAsync(bytes, 0, streamSize, token);
+                    if (token.IsCancellationRequested)
+                    {
+                        // Cancellation was requested
+                        return;
+                    }
+
                     await response.WriteAsync(bytes, 0, read, token);
-                }
+
+                } while (read > 0);
             }
         }
     }

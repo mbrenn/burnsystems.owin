@@ -6,7 +6,7 @@ namespace BurnSystems.Owin.StaticFiles
     {
         public static void UseStaticFiles(this IAppBuilder app, string directory)
         {
-            var configuration = new StaticFileConfiguration()
+            var configuration = new StaticFilesConfiguration()
             {
                 Directory = directory
             };

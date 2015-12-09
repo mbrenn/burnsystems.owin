@@ -1,6 +1,6 @@
 ﻿namespace BurnSystems.Owin.StaticFiles
 {
-    public class StaticFileConfiguration
+    public class StaticFilesConfiguration
     {
         /// <summary>
         /// Gets or sets the directory which is used to show the files
