@@ -12,16 +12,16 @@ namespace BurnSystems.Owin.StaticFiles
         /// <summary>
         /// Stores the reference to the middleware
         /// </summary>
-        private readonly StaticFilesMiddleware _staticFilesMiddleware;
+        private readonly StaticFilesMiddleware _middleware;
 
         private readonly IOwinRequest _request;
         private readonly IOwinResponse _response;
         private string _absolutePath;
         private string _uriPath;
 
-        public StaticFileRequest(StaticFilesMiddleware staticFilesMiddleware, IOwinContext context)
+        public StaticFileRequest(StaticFilesMiddleware middleware, IOwinContext context)
         {
-            _staticFilesMiddleware = staticFilesMiddleware;
+            _middleware = middleware;
             _request = context.Request;
             _response = context.Response;
         }
@@ -51,16 +51,16 @@ namespace BurnSystems.Owin.StaticFiles
 
             if (string.IsNullOrEmpty(_uriPath))
             {
-                _uriPath = _staticFilesMiddleware.Configuration.IndexFile;
+                _uriPath = _middleware.Configuration.IndexFile;
             }
 
-            _absolutePath = Path.Combine(_staticFilesMiddleware.Configuration.Directory, _uriPath);
+            _absolutePath = Path.Combine(_middleware.Configuration.Directory, _uriPath);
         }
 
         private bool CheckIfFileIsSafeAndExisting()
         {
             // Checks, if the path is safe
-            if (Path.IsPathRooted(_uriPath) || _uriPath.Contains("..") || !_absolutePath.StartsWith(_staticFilesMiddleware.Configuration.Directory))
+            if (Path.IsPathRooted(_uriPath) || _uriPath.Contains("..") || !_absolutePath.StartsWith(_middleware.Configuration.Directory))
             {
                 // Not handled
                 return false;
@@ -68,7 +68,7 @@ namespace BurnSystems.Owin.StaticFiles
 
             // Check, if file is in ignore list
             var extension = Path.GetExtension(_uriPath);
-            if (_staticFilesMiddleware.Configuration.IgnoreByExtensions.Contains(extension))
+            if (_middleware.Configuration.IgnoreByExtensions.Contains(extension))
             {
                 // Not handled
                 return false;
@@ -117,7 +117,7 @@ namespace BurnSystems.Owin.StaticFiles
                     _response.Headers.Set(Constants.LastModified, lastModifiedString);
                     _response.ETag = etagQuoted;
                     _response.ContentType =
-                        _staticFilesMiddleware.Configuration.ContentTypeMapper.GetContentType(_absolutePath);
+                        _middleware.Configuration.ContentTypeMapper.GetContentType(_absolutePath);
 
                     await SendFileAsync();
                     return;
@@ -143,7 +143,7 @@ namespace BurnSystems.Owin.StaticFiles
         private async Task SendFileAsync()
         {
             // Now, do the writing
-            var streamSize = _staticFilesMiddleware.Configuration.BlockWriteSize;
+            var streamSize = _middleware.Configuration.BlockWriteSize;
             var bytes = new byte[streamSize];
             using (var fileStream = File.OpenRead(_absolutePath))
             {
