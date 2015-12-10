@@ -68,7 +68,7 @@ namespace BurnSystems.Owin.StaticFiles
 
             // Check, if file is in ignore list
             var extension = Path.GetExtension(_uriPath);
-            if (this._staticFilesMiddleware.Configuration.IgnoreByExtensions.Contains(extension))
+            if (_staticFilesMiddleware.Configuration.IgnoreByExtensions.Contains(extension))
             {
                 // Not handled
                 return false;
@@ -91,44 +91,47 @@ namespace BurnSystems.Owin.StaticFiles
 
             var last = fileInfo.LastWriteTime;
             // Truncate to the second.
-            var lastModified = new DateTime(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second, last.Kind);
-            var lastModifiedString = lastModified.ToString(Constants.HttpDateFormat, CultureInfo.InvariantCulture);
+            var lastModified = new DateTime(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second,
+                last.Kind);
 
             var etagHash = lastModified.ToFileTimeUtc() ^ length;
             var etag = Convert.ToString(etagHash, 16);
-            var etagQuoted = '\"' + etag + '\"';
 
+            await CheckCacheAndPerformResponse(etag, lastModified);
+        }
+
+        private async Task CheckCacheAndPerformResponse(string etag, DateTime lastModified)
+        {
             var browserCache = new StaticFileBrowserCache(_request, etag, lastModified);
+            browserCache.ComprehendRequestHeaders();
+
+            var preconditionState = browserCache.GetPreconditionState();
+            switch (preconditionState)
             {
-                browserCache.ComprehendRequestHeaders();
+                case StaticFileBrowserCache.PreconditionState.Unspecified:
+                    goto case StaticFileBrowserCache.PreconditionState.ShouldProcess;
 
-                var preconditionState = browserCache.GetPreconditionState();
-                switch (preconditionState)
-                {
-                    case StaticFileBrowserCache.PreconditionState.Unspecified:
-                        goto case StaticFileBrowserCache.PreconditionState.ShouldProcess;
+                case StaticFileBrowserCache.PreconditionState.ShouldProcess:
+                    var etagQuoted = '\"' + etag + '\"';
+                    var lastModifiedString = lastModified.ToString(Constants.HttpDateFormat, CultureInfo.InvariantCulture);
+                    _response.Headers.Set(Constants.LastModified, lastModifiedString);
+                    _response.ETag = etagQuoted;
+                    _response.ContentType =
+                        _staticFilesMiddleware.Configuration.ContentTypeMapper.GetContentType(_absolutePath);
 
-                    case StaticFileBrowserCache.PreconditionState.ShouldProcess:
-                        _response.Headers.Set(Constants.LastModified, lastModifiedString);
-                        _response.ETag = etagQuoted;
-                        _response.ContentType = this._staticFilesMiddleware.Configuration.ContentTypeMapper.GetContentType(_absolutePath);
+                    await SendFileAsync();
+                    return;
 
-                        await SendFileAsync();
-                        return;
+                case StaticFileBrowserCache.PreconditionState.NotModified:
+                    SendStatusCodeAsync(Constants.Status304NotModified);
+                    return;
 
-                    case StaticFileBrowserCache.PreconditionState.NotModified:
+                case StaticFileBrowserCache.PreconditionState.PreconditionFailed:
+                    SendStatusCodeAsync(Constants.Status412PreconditionFailed);
+                    return;
 
-                        SendStatusCodeAsync(Constants.Status304NotModified);
-                        return;
-
-                    case StaticFileBrowserCache.PreconditionState.PreconditionFailed:
-
-                        SendStatusCodeAsync(Constants.Status412PreconditionFailed);
-                        return;
-
-                    default:
-                        throw new NotImplementedException(preconditionState.ToString());
-                }
+                default:
+                    throw new NotImplementedException(preconditionState.ToString());
             }
         }
 
