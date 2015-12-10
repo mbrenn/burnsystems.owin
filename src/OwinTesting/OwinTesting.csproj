@@ -84,6 +84,9 @@
     <Content Include="htdocs\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="htdocs\testscript.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="htdocs\testscript.ts">

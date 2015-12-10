@@ -1,6 +1,6 @@
 ﻿
 window.onload = 
-    (ev:Event) : boolean=> {
+    (ev:Event) : boolean => {
         alert("Yes");
         return true;
-    };
+    }; 
