@@ -1,4 +1,5 @@
-﻿using Owin;
+﻿using System.Diagnostics;
+using Owin;
 
 namespace BurnSystems.Owin.StaticFiles
 {
@@ -10,6 +11,13 @@ namespace BurnSystems.Owin.StaticFiles
             {
                 Directory = directory
             };
+
+            UseStaticFiles(app, configuration);
+        }
+
+        public static void UseStaticFiles(this IAppBuilder app, StaticFilesConfiguration configuration)
+        {
+            Debug.Assert(configuration != null, "configuration != null");
 
             app.Use(typeof(StaticFilesMiddleware), configuration);
         }

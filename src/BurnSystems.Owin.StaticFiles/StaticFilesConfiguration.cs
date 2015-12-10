@@ -1,4 +1,6 @@
-﻿namespace BurnSystems.Owin.StaticFiles
+﻿using System.Collections.Generic;
+
+namespace BurnSystems.Owin.StaticFiles
 {
     public class StaticFilesConfiguration
     {
@@ -13,9 +15,27 @@
 
         public StaticFileContentTypeMapper ContentTypeMapper { get; private set; }
 
+        internal List<string> IgnoreByExtensions { get; private set; }
+        
         public StaticFilesConfiguration()
         {
             ContentTypeMapper = new StaticFileContentTypeMapper();
+            IgnoreByExtensions = new List<string>();
+        }
+
+        public StaticFilesConfiguration(string directory): this()
+        {
+            Directory = directory;
+        }
+
+        public void AddIgnoredExtension(string extension)
+        {
+            if (!extension.StartsWith( "."))
+            {
+                extension = $".{extension}";
+            }
+
+            IgnoreByExtensions.Add(extension);
         }
     }
 }

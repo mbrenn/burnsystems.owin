@@ -10,7 +10,10 @@ namespace OwinTesting
 #if DEBUG
             app.UseErrorPage();
 #endif
-            app.UseStaticFiles("htdocs");
+            var configuration = new StaticFilesConfiguration("htdocs");
+            configuration.AddIgnoredExtension(".ts");
+
+            app.UseStaticFiles(configuration);
         }
     }
 }

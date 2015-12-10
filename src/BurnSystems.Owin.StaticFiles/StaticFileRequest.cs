@@ -59,16 +59,25 @@ namespace BurnSystems.Owin.StaticFiles
 
         private bool CheckIfFileIsSafeAndExisting()
         {
+            // Checks, if the path is safe
             if (Path.IsPathRooted(_uriPath) || _uriPath.Contains("..") || !_absolutePath.StartsWith(_staticFilesMiddleware.Configuration.Directory))
             {
-                SendStatusCodeAsync(404);
+                // Not handled
+                return false;
+            }
+
+            // Check, if file is in ignore list
+            var extension = Path.GetExtension(_uriPath);
+            if (this._staticFilesMiddleware.Configuration.IgnoreByExtensions.Contains(extension))
+            {
+                // Not handled
                 return false;
             }
 
             // Checks, if the path is existing
             if (!File.Exists(_absolutePath))
             {
-                SendStatusCodeAsync(404);
+                // Not handled
                 return false;
             }
 
