@@ -10,5 +10,12 @@
         public string IndexFile { get; set; } = "index.html";
 
         public int BlockWriteSize { get; set; } = 65536;
+
+        public StaticFileContentTypeMapper ContentTypeMapper { get; private set; }
+
+        public StaticFilesConfiguration()
+        {
+            ContentTypeMapper = new StaticFileContentTypeMapper();
+        }
     }
 }

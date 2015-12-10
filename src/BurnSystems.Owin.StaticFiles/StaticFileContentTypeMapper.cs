@@ -4,14 +4,14 @@ using System.IO;
 
 namespace BurnSystems.Owin.StaticFiles
 {
-    public static class StaticFileContentType
+    public class StaticFileContentTypeMapper
     {
         /// <summary>
         /// Creates a new provider with a set of default mappings.
         /// </summary>
-        static StaticFileContentType()
+        public StaticFileContentTypeMapper()
         {
-            Mapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            _mapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 {".323", "text/h323"},
                 {".3g2", "video/3gpp2"},
@@ -390,22 +390,24 @@ namespace BurnSystems.Owin.StaticFiles
         /// <summary>
         /// The cross reference table of file extensions and content-types.
         /// </summary>
-        private static readonly IDictionary<string, string> Mapping;
+        private readonly IDictionary<string, string> _mapping;
+
+        public IDictionary<string, string> Mapping => _mapping;
 
         /// <summary>
         /// Given a file path, determine the MIME type
         /// </summary>
         /// <param name="subpath">A file path</param>
         /// <returns>True if MIME type could be determined</returns>
-        public static string GetContentType(string subpath)
+        public string GetContentType(string subpath)
         {
             var extension = Path.GetExtension(subpath);
-            if (extension == null || !Mapping.ContainsKey(extension))
+            if (extension == null || !_mapping.ContainsKey(extension))
             {
                 return "text/plain";
             }
 
-            return Mapping[extension];
+            return _mapping[extension];
         }
     }
 }

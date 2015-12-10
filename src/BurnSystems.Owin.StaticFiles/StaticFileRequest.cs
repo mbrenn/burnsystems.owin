@@ -102,7 +102,7 @@ namespace BurnSystems.Owin.StaticFiles
                     case StaticFileBrowserCache.PreconditionState.ShouldProcess:
                         _response.Headers.Set(Constants.LastModified, lastModifiedString);
                         _response.ETag = etagQuoted;
-                        _response.ContentType = StaticFileContentType.GetContentType(_absolutePath);
+                        _response.ContentType = this._staticFilesMiddleware.Configuration.ContentTypeMapper.GetContentType(_absolutePath);
 
                         await SendFileAsync();
                         return;
