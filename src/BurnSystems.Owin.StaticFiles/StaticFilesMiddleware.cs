@@ -13,6 +13,11 @@ namespace BurnSystems.Owin.StaticFiles
     {
         public StaticFilesConfiguration Configuration { get; }
 
+        /// <summary>
+        /// Stores the webdirectory as being local to the assembly
+        /// </summary>
+        public string WebDirectory { get; private set; }
+
         public StaticFilesMiddleware(OwinMiddleware next, StaticFilesConfiguration configuration) : base(next)
         {
             Debug.Assert(configuration != null, "_configuration != null");
@@ -24,6 +29,10 @@ namespace BurnSystems.Owin.StaticFiles
             }
 
             Configuration = configuration;
+            
+            // Finds the webdirectory being local
+            var path = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+            WebDirectory = Path.Combine(path, Configuration.Directory);
         }
 
     /// <summary>
