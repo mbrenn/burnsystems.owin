@@ -54,13 +54,13 @@ namespace BurnSystems.Owin.StaticFiles
                 _uriPath = _middleware.Configuration.IndexFile;
             }
 
-            _absolutePath = Path.Combine(_middleware.Configuration.Directory, _uriPath);
+            _absolutePath = Path.Combine(_middleware.WebDirectory, _uriPath);
         }
 
         private bool CheckIfFileIsSafeAndExisting()
         {
             // Checks, if the path is safe
-            if (Path.IsPathRooted(_uriPath) || _uriPath.Contains("..") || !_absolutePath.StartsWith(_middleware.Configuration.Directory))
+            if (Path.IsPathRooted(_uriPath) || _uriPath.Contains("..") || !_absolutePath.StartsWith(_middleware.WebDirectory))
             {
                 // Not handled
                 return false;

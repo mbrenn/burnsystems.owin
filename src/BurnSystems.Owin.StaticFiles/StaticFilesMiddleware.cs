@@ -16,23 +16,23 @@ namespace BurnSystems.Owin.StaticFiles
         /// <summary>
         /// Stores the webdirectory as being local to the assembly
         /// </summary>
-        public string WebDirectory { get; private set; }
+        internal string WebDirectory { get; private set; }
 
         public StaticFilesMiddleware(OwinMiddleware next, StaticFilesConfiguration configuration) : base(next)
         {
             Debug.Assert(configuration != null, "_configuration != null");
-
-            if (!Directory.Exists(configuration.Directory))
-            {
-                throw new InvalidOperationException("Path for static file directory does not exist: " +
-                                                    configuration.Directory);
-            }
 
             Configuration = configuration;
             
             // Finds the webdirectory being local
             var path = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
             WebDirectory = Path.Combine(path, Configuration.Directory);
+            
+            if (!Directory.Exists(WebDirectory))
+            {
+                throw new InvalidOperationException("Path for static file directory does not exist: " +
+                                                    configuration.Directory);
+            }
         }
 
     /// <summary>

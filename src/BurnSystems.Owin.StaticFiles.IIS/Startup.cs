@@ -13,8 +13,7 @@ namespace BurnSystems.Owin.StaticFiles.IIS
     {
         public void Configuration(IAppBuilder app)
         {
-            var path = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-            var configuration = new StaticFilesConfiguration(Path.Combine(path, "htdocs"));
+            var configuration = new StaticFilesConfiguration("htdocs");
             configuration.AddIgnoredExtension(".ts");
 
             app.UseStaticFiles(configuration);
